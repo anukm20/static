@@ -1,12 +1,20 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render,redirect
+from .models import Task
 # Create your views here.
-def Home(req):
-    return render(req,'index.html')
+def Home(req): 
+    tasks=Task.objects.all()
+    if req.method=="POST":
+        task=req.POST.get('task','')
+        priority=req.POST.get('priority','')
+        todo=Task(task=task,priority=priority)
+        todo.save()
+    return render(req,'index.html',{"tasks":tasks})
 
-# def about(req):
-#     return render(req,'about.html')
-
-def contact(req):
-    return render(req,'contact.html')
-
+def Update(req,id):
+    tasks=Task.objects.get(id=id)
+    if req.method=="POST":
+        task=req.POST.get('task','')
+        priority=req.POST.get('priority','')
+        Task.objects.filter(id=id).update(task=task,priority=priority)
+        return redirect("home")
+    return render(req,'update.html',{"task":tasks})
